@@ -1,30 +1,58 @@
 package com.cos.blog.controller.api;
 
+import com.cos.blog.config.auth.PrincipalDetail;
 import com.cos.blog.dto.ResponseDto;
-import com.cos.blog.model.User;
-import com.cos.blog.service.UserService;
+import com.cos.blog.model.Board;
+import com.cos.blog.model.Reply;
+import com.cos.blog.repository.BoardRepository;
+import com.cos.blog.service.BoardService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.*;
 
 //데이터만 리턴해주는 restcontroller 사용
 @RestController
-public class UserApiController {
+public class BoardApiController {
 
     @Autowired
-    private UserService userService;
+    private BoardService boardService;
 
-    @PostMapping("/auth/joinProc")
-    public ResponseDto<Integer> save(@RequestBody User user){
-        System.out.println("UserApiController : save 호출됨");
-        //실제로 DB에 insert하고 아래에서 return하면 된다.
-        userService.회원가입(user);
+    @Autowired
+    private BoardRepository boardRepository;
+
+
+    @PostMapping("/api/board")
+    public ResponseDto<Integer> save(@RequestBody Board board, @AuthenticationPrincipal PrincipalDetail principal){
+        boardService.글쓰기(board, principal.getUser());
         return new ResponseDto<Integer>(HttpStatus.OK.value(), 1);
         //자바오브젝트를 JSON으로 변환해서 리턴 => jackson 라이브러리
     }
 
+    @DeleteMapping("/api/board/{id}")
+    public ResponseDto<Integer> deleteById(@PathVariable int id, @AuthenticationPrincipal PrincipalDetail principal){
+        Board board = boardRepository.findById(id).get();
+        if(board.getUser().getId() == principal.getUser().getId()) {
+            boardService.글삭제하기(id);
+            return new ResponseDto<Integer>(HttpStatus.OK.value(), 1);
+        }
+        else{
+            return new ResponseDto<Integer>(HttpStatus.OK.value(), -1);
+        }
+    }
+
+    @PutMapping("/api/board/{id}")
+    public  ResponseDto<Integer> update(@PathVariable int id, @RequestBody Board board){
+         boardService.글수정하기(id, board);
+        return new ResponseDto<Integer>(HttpStatus.OK.value(), 1);
+    }
+
+    @PostMapping("/api/board/{boardId}/reply")
+    public ResponseDto<Integer> replySave(@PathVariable int boardId, @RequestBody Reply reply, @AuthenticationPrincipal PrincipalDetail principal){
+        boardService.댓글쓰기(principal.getUser(), boardId, reply);
+        return new ResponseDto<Integer>(HttpStatus.OK.value(), 1);
+        //자바오브젝트를 JSON으로 변환해서 리턴 => jackson 라이브러리
+    }
     /*//전통적 방식의 로그인 방법법
    @PostMapping("/api/user/login")
     public ResponseDto<Integer> login(@RequestBody User user, HttpSession session){

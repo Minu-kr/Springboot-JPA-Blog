@@ -35,6 +35,8 @@ public class User {
     @Enumerated(EnumType.STRING)
     private RoleType role; //Enum을 쓰는게 좋다. // admin, user, manager 등등 권한 나누기
 
+    private String oauth; // kakao, google
+
     @CreationTimestamp //시간이 자동으로 입력됨
     private Timestamp createDate;
 }
