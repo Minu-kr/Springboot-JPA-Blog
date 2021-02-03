@@ -33,4 +33,5 @@ public class Reply {
     @CreationTimestamp
     private Timestamp createDate;
 
+
 }

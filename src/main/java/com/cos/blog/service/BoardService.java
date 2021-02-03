@@ -2,7 +2,6 @@ package com.cos.blog.service;
 
 import com.cos.blog.dto.ReplySaveRequestDto;
 import com.cos.blog.model.Board;
-import com.cos.blog.model.Reply;
 import com.cos.blog.model.User;
 import com.cos.blog.repository.BoardRepository;
 import com.cos.blog.repository.ReplyReposiotry;
@@ -63,22 +62,7 @@ public class BoardService {
 
     @Transactional
     public void 댓글쓰기(ReplySaveRequestDto replySaveRequestDto){
-        User user = userRepository.findById(replySaveRequestDto.getUserId()).orElseThrow(()->{
-            return new IllegalArgumentException("댓글 쓰기 실패: 유저 id찾을수 없음.");
-        }); //영속화 완료
-
-
-        Board board = boardRepository.findById(replySaveRequestDto.getBoardId()).orElseThrow(()->{
-            return new IllegalArgumentException("댓글 쓰기 실패: 게시글 id찾을수 없음.");
-        }); //영속화 완료
-
-        Reply reply = Reply.builder()
-                .user(user)
-                .board(board)
-                .content(replySaveRequestDto.getContent())
-                .build();
-
-        replyReposiotry.save(reply);
+        int result = replyReposiotry.mSave(replySaveRequestDto.getUserId(), replySaveRequestDto.getBoardId(), replySaveRequestDto.getContent());
     }
 
 }
