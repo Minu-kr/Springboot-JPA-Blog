@@ -60,11 +60,17 @@ public class BoardService {
         //더티체킹 발생 -> 자동 업데이트가 됨. DB flush
     }
 
+
+
     @Transactional
     public void 댓글쓰기(ReplySaveRequestDto replySaveRequestDto){
         int result = replyReposiotry.mSave(replySaveRequestDto.getUserId(), replySaveRequestDto.getBoardId(), replySaveRequestDto.getContent());
     }
 
+    @Transactional
+    public void 댓글삭제(int replyId){
+        replyReposiotry.deleteById(replyId);
+    }
 }
 //서비스가 필요한 이유
 //1. 트랜잭션 관리
